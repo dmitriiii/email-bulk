@@ -37,7 +37,8 @@ class App extends React.Component {
     });
     // console.log(emailsObj);
     this.setState({
-      emails: emailsObj
+      emails: emailsObj,
+      areaValue: extractedEmails.join(", ")
     });
   }
 
@@ -60,7 +61,7 @@ class App extends React.Component {
       <th scope="row">{email.id}</th>
       <td>{email.email}</td>
       <td>{email.status}</td>
-      <td><button type="button" className="btn btn-sm btn-secondary">Resend</button></td>
+      <td><button type="button" className="btn btn-sm btn-secondary"><i class="fas fa-redo"></i> Resend</button></td>
     </tr>
     );
     return (
@@ -72,14 +73,14 @@ class App extends React.Component {
               <div className="form-group">
                 
                 { areaValue.length === 0  
-                  ?<button type="button" className="btn btn-info btn-sm disabled" disabled>Paste emails</button>
+                  ?<button type="button" className="btn btn-info btn-sm disabled" disabled><i class="fas fa-paste"></i> Paste emails</button>
                   :<React.Fragment>
                     <button type="button" className="btn btn-info btn-sm" onClick={this.handleClickParse}>Parse</button>
-                    <button type="button" className="btn btn-sm btn-light" onClick={this.handleClickClear}>Clear</button>
+                    <button type="button" className="btn btn-sm btn-light" onClick={this.handleClickClear}><i class="far fa-trash-alt"></i> Clear</button>
                   </React.Fragment>
                 }
                 
-                <button type="button" className="btn btn-primary btn-sm disabled" disabled>Bulk Send</button>
+                <button type="button" className="btn btn-primary btn-sm disabled" disabled><i class="fas fa-mail-bulk"></i> Bulk Send</button>
                 <hr/>
                 <textarea 
                   className="form-control" 

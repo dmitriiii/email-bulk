@@ -40,3 +40,14 @@
 label, button{
   margin-right: 10px;
 }
+.lastCol{
+  width: 150px;
+}
+.firstCol{
+  width: 40px;
+}
+.results{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

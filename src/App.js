@@ -101,6 +101,7 @@ class App extends React.Component {
     );
     return (
       <div className="App">
+        <div className={styles.side}></div>
         <div className="container">
           <div className="row">
             <div className="col-md-12">

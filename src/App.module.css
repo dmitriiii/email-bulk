@@ -51,3 +51,13 @@ label, button{
   justify-content: space-between;
   align-items: center;
 }
+.side{
+  position: fixed;
+  padding: 20px;
+  background: #eee;
+  left: 20px;
+  top: 60px;
+  width: 100%;
+  max-width: 300px;
+  z-index: 9;
+}

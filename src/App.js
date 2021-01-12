@@ -36,6 +36,16 @@ class App extends React.Component {
   
   handleClickParse(){
     let extractedEmails = this.extractEmails(this.state.areaValue);
+    // console.log(extractedEmails);
+    
+    if(extractedEmails == null){
+      this.setState({
+        emails: '',
+        areaValue: ''
+      });  
+      alert('no emails!');
+      return false;
+    }
     extractedEmails = this.removeDuplicates(extractedEmails);
     this.setState({
       emails: this.getEmailsObj(extractedEmails),
@@ -51,16 +61,18 @@ class App extends React.Component {
     });
   }
 
-
+  //Remove 1 email
   handleClickRemove(index) {
-    const email = this.state.emails[index].email;
+    const oldEmails = this.state.emails;
+    const email = oldEmails[index].email;
+    oldEmails.splice(index,1);
     const areaValue = this.state.areaValue.replace(email, '');
 
     let extractedEmails = this.extractEmails(areaValue);
     extractedEmails = this.removeDuplicates(extractedEmails);
 
     this.setState({
-      emails: this.getEmailsObj(extractedEmails),
+      emails: oldEmails,
       areaValue: extractedEmails.join(" | ")
     });
   }
@@ -92,6 +104,7 @@ class App extends React.Component {
         // console.log(emails);
         emails[data.emails_index].status = data.emails_status;
         emails[data.emails_index].classcss = data.emails_classcss;
+        emails[data.emails_index].msg = data.msg;
         
         this.setState({
           emails: emails
@@ -168,17 +181,22 @@ class App extends React.Component {
   render() {
     const areaValue = this.state.areaValue;
     const emails = this.state.emails;
-    const rows = emails.map((email,index) =>
-      <tr key={index} className={ email.classcss }>
-        <th scope="row">{index+1}</th>
-        <td>{email.email}</td>
-        <td>{email.status}</td>
-        <td>
-          <button type="button" className="btn btn-sm btn-secondary" onClick={() => this.fetchSingleEmail(email.email, index)}><i className="fas fa-redo"></i> Resend</button>
-          <button type="button" className="btn btn-sm btn-danger" onClick={() => this.handleClickRemove(index)}><i className="far fa-trash-alt"></i></button>
-        </td>
-      </tr>
-    );
+    let rows;
+    if( Array.isArray(emails) && emails.length ){
+      rows = emails.map((email,index) =>
+        <tr key={index} className={ email.classcss }>
+          <th scope="row">{index+1}</th>
+          <td>{email.email}</td>
+          <td>{email.status}</td>
+          <td>{email.msg}</td>
+          <td>
+            <button type="button" className="btn btn-sm btn-secondary" onClick={() => this.fetchSingleEmail(email.email, index)}><i className="fas fa-redo"></i> Send</button>
+            <button type="button" className="btn btn-sm btn-danger" onClick={() => this.handleClickRemove(index)}><i className="far fa-trash-alt"></i></button>
+          </td>
+        </tr>
+      );
+    }
+    
     return (
       <div className="App">
         <div className={styles.side}>
@@ -257,8 +275,9 @@ class App extends React.Component {
                 <thead>
                   <tr>
                     <th scope="col" className={styles.firstCol}>#</th>
-                    <th scope="col">To Email</th>
+                    <th scope="col" className={styles.secondCol}>To Email</th>
                     <th scope="col">Status</th>
+                    <th scope="col">Message</th>
                     <th scope="col" className={styles.lastCol}>Action</th>
                   </tr>
                 </thead>

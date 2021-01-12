@@ -46,6 +46,9 @@ label, button{
 .firstCol{
   width: 40px;
 }
+.secondCol{
+  width: 100px;
+}
 .results{
   display: flex;
   justify-content: space-between;

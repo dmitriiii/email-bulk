@@ -17,7 +17,7 @@ class App extends React.Component {
       smtp_pass: '',
       smtp_reply: '',
       smtp_subject: '',
-      smtp_body: ''
+      // smtp_body: ''
     };
     this.handleClickParse = this.handleClickParse.bind(this);
     this.handleClickClear = this.handleClickClear.bind(this);
@@ -81,7 +81,7 @@ class App extends React.Component {
   async fetchSingleEmail(email,index){
     const url = 'http://dev.pro24web.site/bulk_email/email.php';
     const smtp = {
-      smtp_body: this.state.smtp_body,
+      // smtp_body: this.state.smtp_body,
       smtp_email: this.state.smtp_email,
       smtp_from: this.state.smtp_from,
       smtp_pass: this.state.smtp_pass,
@@ -226,7 +226,7 @@ class App extends React.Component {
             <input type="text" name="smtp_subject" className="form-control form-control-sm" value={this.state.smtp_subject} onChange={this.handleChangeFields}/>
           </div>
 
-          <div className="form-group">
+          {/* <div className="form-group">
             <small className="form-text text-muted">Body</small>
             <textarea 
               className="form-control" 
@@ -236,7 +236,7 @@ class App extends React.Component {
               onChange={this.handleChangeFields}
             >
             </textarea>
-          </div>
+          </div> */}
           <button type="button" className="btn btn-warning btn-sm" onClick={this.handleClickSmtpDefault}><i className="fas fa-street-view"></i> Default</button>
         </div>
         <div className="container">

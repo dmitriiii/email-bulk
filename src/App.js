@@ -20,6 +20,8 @@ class App extends React.Component {
       // smtp_body: ''
     };
     this.handleClickParse = this.handleClickParse.bind(this);
+    this.handleClickEmPass = this.handleClickEmPass.bind(this);
+
     this.handleClickClear = this.handleClickClear.bind(this);
     this.handleClickRemove = this.handleClickRemove.bind(this);
     this.handleClickBulk = this.handleClickBulk.bind(this);
@@ -28,16 +30,48 @@ class App extends React.Component {
     
     this.handleClickSmtpDefault = this.handleClickSmtpDefault.bind(this);
     this.handleChangeFields = this.handleChangeFields.bind(this);
-  }
+  } 
 
   componentDidMount() {
     this.handleClickSmtpDefault();
   }
   
+  //Text to emails & passwords
+  rawToData(txt) {
+    let rez = [];
+    let txt_n = txt.split('\n');
+    txt_n.forEach(el1 => {
+      let txt_space = el1.split(' ');
+      txt_space.forEach(el2 => {
+        if(this.checkIfEmailInString(el2)){
+          el2 = el2.replace('|','');
+          let txt_tchk = el2.split(':');
+          rez.push({
+            email: txt_tchk[0],
+            pass: txt_tchk[1],
+            status: 'Not Started',
+            classcss: ''
+          });
+        }
+      });
+    });
+    return rez;
+  }
+
+  checkIfEmailInString(text) { 
+    var re = /(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
+    return re.test(text);
+  }
+
+  // Retrieve emails only from inserted text
+  extractEmails(text){
+    return text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
+  }
+
+  //Parse emails only
   handleClickParse(){
     let extractedEmails = this.extractEmails(this.state.areaValue);
-    // console.log(extractedEmails);
-    
+    let emailsObj = [];
     if(extractedEmails == null){
       this.setState({
         emails: '',
@@ -46,10 +80,32 @@ class App extends React.Component {
       alert('no emails!');
       return false;
     }
-    extractedEmails = this.removeDuplicates(extractedEmails);
+    extractedEmails.forEach(function (item, index) {
+      emailsObj.push({
+        email: item,
+        status: 'Not Started',
+        classcss: ''
+      })
+    });
     this.setState({
-      emails: this.getEmailsObj(extractedEmails),
-      areaValue: extractedEmails.join(" | ")
+      emails: emailsObj,
+    });
+  }
+
+  //Parse emails & passwords
+  handleClickEmPass(){
+    const areaValue = this.state.areaValue;
+    const emailsData = this.rawToData(areaValue);
+    if(emailsData.length === 0){
+      this.setState({
+        emails: '',
+        areaValue: ''
+      });  
+      alert('no emails!');
+      return false;
+    }
+    this.setState({
+      emails: emailsData
     });
   }
 
@@ -64,21 +120,15 @@ class App extends React.Component {
   //Remove 1 email
   handleClickRemove(index) {
     const oldEmails = this.state.emails;
-    const email = oldEmails[index].email;
+    // const email = oldEmails[index].email;
     oldEmails.splice(index,1);
-    const areaValue = this.state.areaValue.replace(email, '');
-
-    let extractedEmails = this.extractEmails(areaValue);
-    extractedEmails = this.removeDuplicates(extractedEmails);
-
     this.setState({
       emails: oldEmails,
-      areaValue: extractedEmails.join(" | ")
     });
   }
 
   // Send Request single
-  async fetchSingleEmail(email,index){
+  async fetchSingleEmail(email,index,pass=''){
     const url = 'http://dev.pro24web.site/bulk_email/email.php';
     const smtp = {
       // smtp_body: this.state.smtp_body,
@@ -94,14 +144,12 @@ class App extends React.Component {
         headers: {
           'Content-Type' : 'application/json'
         },
-        body: JSON.stringify({ email, index, smtp })
+        body: JSON.stringify({ email, index, pass, smtp })
       });
       const data = await res.json();
       
-      //Successfully sent
-      // if( data.type==='success' ){
+      //Response from server
         let emails = this.state.emails;
-        // console.log(emails);
         emails[data.emails_index].status = data.emails_status;
         emails[data.emails_index].classcss = data.emails_classcss;
         emails[data.emails_index].msg = data.msg;
@@ -109,7 +157,6 @@ class App extends React.Component {
         this.setState({
           emails: emails
         });
-      // }
 
     } catch (error) {
       console.error(error);
@@ -121,7 +168,7 @@ class App extends React.Component {
     const emails = this.state.emails;
     for (let index = 0; index < emails.length; index++) {
       const emailData = emails[index];
-      await this.fetchSingleEmail(emailData.email, index);
+      await this.fetchSingleEmail(emailData.email, index, emailData.pass);
     }
   }
 
@@ -145,37 +192,7 @@ class App extends React.Component {
     this.setState(obj);
   }
  
-  // Retrieve emails from inserted text
-  extractEmails(text){
-    return text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
-  }
-
-  //Remove duplicate emails from inserted text
-  removeDuplicates(arr) {
-    var obj = {};
-    var ret_arr = [];
-    for (var i = 0; i < arr.length; i++) {
-      obj[arr[i]] = true;
-    }
-    for (var key in obj) {
-      ret_arr.push(key);
-    }
-    return ret_arr;
-  }
-
-  //Prepare emails object for state
-  getEmailsObj(emails, status='Not Started'){
-    let emailsObj = [];
-    emails.forEach(function (item, index) {
-      emailsObj.push({
-        email: item,
-        status: status,
-        classcss: ''
-      })
-    });
-    return emailsObj;
-  }
-
+  
   
   
   render() {
@@ -187,10 +204,11 @@ class App extends React.Component {
         <tr key={index} className={ email.classcss }>
           <th scope="row">{index+1}</th>
           <td>{email.email}</td>
+          <td>{email.pass}</td>
           <td>{email.status}</td>
           <td>{email.msg}</td>
           <td>
-            <button type="button" className="btn btn-sm btn-secondary" onClick={() => this.fetchSingleEmail(email.email, index)}><i className="fas fa-redo"></i> Send</button>
+            <button type="button" className="btn btn-sm btn-secondary" onClick={() => this.fetchSingleEmail(email.email, index, email.pass)}><i className="fas fa-envelope-open-text"></i> Send</button>
             <button type="button" className="btn btn-sm btn-danger" onClick={() => this.handleClickRemove(index)}><i className="far fa-trash-alt"></i></button>
           </td>
         </tr>
@@ -226,17 +244,6 @@ class App extends React.Component {
             <input type="text" name="smtp_subject" className="form-control form-control-sm" value={this.state.smtp_subject} onChange={this.handleChangeFields}/>
           </div>
 
-          {/* <div className="form-group">
-            <small className="form-text text-muted">Body</small>
-            <textarea 
-              className="form-control" 
-              rows="5" 
-              name="smtp_body"
-              value={this.state.smtp_body} 
-              onChange={this.handleChangeFields}
-            >
-            </textarea>
-          </div> */}
           <button type="button" className="btn btn-warning btn-sm" onClick={this.handleClickSmtpDefault}><i className="fas fa-street-view"></i> Default</button>
         </div>
         <div className="container">
@@ -256,7 +263,8 @@ class App extends React.Component {
                 { areaValue.length === 0  
                   ?<React.Fragment></React.Fragment>
                   :<React.Fragment>
-                    <button type="button" className="btn btn-info btn-sm" onClick={this.handleClickParse}><i className="fas fa-hat-wizard"></i> Parse</button>
+                    <button type="button" className="btn btn-info btn-sm" onClick={this.handleClickParse}><i className="fas fa-hat-wizard"></i> Emails only</button>
+                    <button type="button" className="btn btn-info btn-sm" onClick={this.handleClickEmPass}><i className="fas fa-hat-wizard"></i> Emails & Pass</button>
                     <button type="button" className="btn btn-sm btn-light" onClick={this.handleClickClear}><i className="fas fa-broom"></i> Clear All</button>
                   </React.Fragment>
                 }
@@ -276,6 +284,7 @@ class App extends React.Component {
                   <tr>
                     <th scope="col" className={styles.firstCol}>#</th>
                     <th scope="col" className={styles.secondCol}>To Email</th>
+                    <th scope="col">Password</th>
                     <th scope="col">Status</th>
                     <th scope="col">Message</th>
                     <th scope="col" className={styles.lastCol}>Action</th>

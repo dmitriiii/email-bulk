@@ -11,13 +11,13 @@ class App extends React.Component {
       disabledParse: true,
       disabledSend: true,
       emailStatus: 'Not Started',
-      
+      amountPerDay: '',
+
       smtp_from: '',
       smtp_email: '',
       smtp_pass: '',
       smtp_reply: '',
       smtp_subject: '',
-      // smtp_body: ''
     };
     this.handleClickParse = this.handleClickParse.bind(this);
     this.handleClickEmPass = this.handleClickEmPass.bind(this);
@@ -155,7 +155,8 @@ class App extends React.Component {
         emails[data.emails_index].msg = data.msg;
         
         this.setState({
-          emails: emails
+          emails: emails,
+          amountPerDay: data.amountPerDay
         });
 
     } catch (error) {
@@ -245,6 +246,10 @@ class App extends React.Component {
           </div>
 
           <button type="button" className="btn btn-warning btn-sm" onClick={this.handleClickSmtpDefault}><i className="fas fa-street-view"></i> Default</button>
+        </div>
+        <div className={styles.amountPerDay}>
+          <b>Sent today</b> <br/>
+          {this.state.amountPerDay}
         </div>
         <div className="container">
           <div className="row">

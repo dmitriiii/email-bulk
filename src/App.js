@@ -25,6 +25,8 @@ class App extends React.Component {
     this.handleClickClear = this.handleClickClear.bind(this);
     this.handleClickRemove = this.handleClickRemove.bind(this);
     this.handleClickBulk = this.handleClickBulk.bind(this);
+    this.handleClickAddDB = this.handleClickAddDB.bind(this);
+    
     this.fetchSingleEmail = this.fetchSingleEmail.bind(this);
     
     
@@ -276,7 +278,9 @@ class App extends React.Component {
                 { emails.length === 0  
                   ?<React.Fragment></React.Fragment>
                   :<React.Fragment>
-                    <button type="button" className="btn btn-primary btn-sm" onClick={this.handleClickBulk}><i className="fas fa-mail-bulk"></i> Bulk Send</button>
+                    {/* <button type="button" className="btn btn-primary btn-sm" onClick={this.handleClickBulk}><i className="fas fa-mail-bulk"></i> Bulk Send</button> */}
+                    <button type="button" className="btn btn-primary btn-sm" onClick={this.handleClickAddDB}><i className="fas fa-mail-bulk"></i> Bulk Add to DB</button>
+
                   </React.Fragment>
                 }
               </div>

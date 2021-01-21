@@ -25,7 +25,7 @@ class App extends React.Component {
     this.handleClickClear = this.handleClickClear.bind(this);
     this.handleClickRemove = this.handleClickRemove.bind(this);
     this.handleClickBulk = this.handleClickBulk.bind(this);
-    this.handleClickAddDB = this.handleClickAddDB.bind(this);
+    // this.handleClickAddDB = this.handleClickAddDB.bind(this);
     
     this.fetchSingleEmail = this.fetchSingleEmail.bind(this);
     
@@ -129,9 +129,22 @@ class App extends React.Component {
     });
   }
 
+  //Sending massive emails
+  async handleClickBulk( toDB ){
+    const emails = this.state.emails;
+    for (let index = 0; index < emails.length; index++) {
+      const emailData = emails[index];
+      await this.fetchSingleEmail(emailData.email, index, emailData.pass, toDB);
+    }
+    alert('Procedure finished!');
+  }
+
   // Send Request single
-  async fetchSingleEmail(email,index,pass=''){
-    const url = 'http://dev.pro24web.site/bulk_email/email.php';
+  async fetchSingleEmail(email,index,pass='', toDB){
+    // console.log(toDB);
+    // return false;
+
+    let url = 'http://dev.pro24web.site/bulk_email/email.php';
     const smtp = {
       // smtp_body: this.state.smtp_body,
       smtp_email: this.state.smtp_email,
@@ -146,7 +159,7 @@ class App extends React.Component {
         headers: {
           'Content-Type' : 'application/json'
         },
-        body: JSON.stringify({ email, index, pass, smtp })
+        body: JSON.stringify({ email, index, pass, smtp, toDB })
       });
       const data = await res.json();
       
@@ -166,14 +179,7 @@ class App extends React.Component {
     }
   }
 
-  //Sending massive emails
-  async handleClickBulk(){
-    const emails = this.state.emails;
-    for (let index = 0; index < emails.length; index++) {
-      const emailData = emails[index];
-      await this.fetchSingleEmail(emailData.email, index, emailData.pass);
-    }
-  }
+  
 
   // Set default SMTP data
   handleClickSmtpDefault(){
@@ -278,8 +284,8 @@ class App extends React.Component {
                 { emails.length === 0  
                   ?<React.Fragment></React.Fragment>
                   :<React.Fragment>
-                    {/* <button type="button" className="btn btn-primary btn-sm" onClick={this.handleClickBulk}><i className="fas fa-mail-bulk"></i> Bulk Send</button> */}
-                    <button type="button" className="btn btn-primary btn-sm" onClick={this.handleClickAddDB}><i className="fas fa-mail-bulk"></i> Bulk Add to DB</button>
+                    <button type="button" className="btn btn-primary btn-sm" onClick={() => this.handleClickBulk(0)}><i className="fas fa-mail-bulk"></i> Bulk Send</button>
+                    <button type="button" className="btn btn-primary btn-sm" onClick={() => this.handleClickBulk(1)}><i className="fas fa-database"></i> Bulk Add to DB</button>
 
                   </React.Fragment>
                 }

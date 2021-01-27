@@ -217,7 +217,7 @@ class App extends React.Component {
           <td>{email.status}</td>
           <td>{email.msg}</td>
           <td>
-            <button type="button" className="btn btn-sm btn-secondary" onClick={() => this.fetchSingleEmail(email.email, index, email.pass)}><i className="fas fa-envelope-open-text"></i> Send</button>
+            <button type="button" className="btn btn-sm btn-secondary" disabled onClick={() => this.fetchSingleEmail(email.email, index, email.pass)} ><i className="fas fa-envelope-open-text"></i> Send</button>
             <button type="button" className="btn btn-sm btn-danger" onClick={() => this.handleClickRemove(index)}><i className="far fa-trash-alt"></i></button>
           </td>
         </tr>
@@ -284,7 +284,7 @@ class App extends React.Component {
                 { emails.length === 0  
                   ?<React.Fragment></React.Fragment>
                   :<React.Fragment>
-                    <button type="button" className="btn btn-primary btn-sm" onClick={() => this.handleClickBulk(0)}><i className="fas fa-mail-bulk"></i> Bulk Send</button>
+                    <button type="button" className="btn btn-primary btn-sm" disabled onClick={() => this.handleClickBulk(0)}><i className="fas fa-mail-bulk"></i> Bulk Send</button>
                     <button type="button" className="btn btn-primary btn-sm" onClick={() => this.handleClickBulk(1)}><i className="fas fa-database"></i> Bulk Add to DB</button>
 
                   </React.Fragment>

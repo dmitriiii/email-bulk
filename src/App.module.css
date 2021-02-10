@@ -63,6 +63,7 @@ label, button{
   width: 100%;
   max-width: 300px;
   z-index: 9;
+  display: none;
 }
 .amountPerDay{
   position: fixed;

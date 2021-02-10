@@ -43,6 +43,7 @@ class App extends React.Component {
     let rez = [];
     let txt_n = txt.split('\n');
     txt_n.forEach(el1 => {
+      let valid_until = this.extractDates(el1);
       let txt_space = el1.split(' ');
       txt_space.forEach(el2 => {
         if(this.checkIfEmailInString(el2)){
@@ -52,6 +53,7 @@ class App extends React.Component {
             email: txt_tchk[0],
             pass: txt_tchk[1],
             status: 'Not Started',
+            valid_until: valid_until[0],
             classcss: ''
           });
         }
@@ -68,6 +70,11 @@ class App extends React.Component {
   // Retrieve emails only from inserted text
   extractEmails(text){
     return text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
+  }
+
+  //Retrieve dates from string
+  extractDates(text){
+    return text.match(/(\d{1,4}([.\-/])\d{1,2}([.\-/])\d{1,4})/gi);
   }
 
   //Parse emails only
@@ -94,7 +101,7 @@ class App extends React.Component {
     });
   }
 
-  //Parse emails & passwords
+  //Parse emails & passwords & valid until
   handleClickEmPass(){
     const areaValue = this.state.areaValue;
     const emailsData = this.rawToData(areaValue);
@@ -134,13 +141,13 @@ class App extends React.Component {
     const emails = this.state.emails;
     for (let index = 0; index < emails.length; index++) {
       const emailData = emails[index];
-      await this.fetchSingleEmail(emailData.email, index, emailData.pass, toDB);
+      await this.fetchSingleEmail(emailData.email, index, emailData.pass, emailData.valid_until, toDB);
     }
     alert('Procedure finished!');
   }
 
   // Send Request single
-  async fetchSingleEmail(email,index,pass='', toDB){
+  async fetchSingleEmail(email,index,pass='',valid_until='',toDB){
     // console.log(toDB);
     // return false;
 
@@ -159,7 +166,7 @@ class App extends React.Component {
         headers: {
           'Content-Type' : 'application/json'
         },
-        body: JSON.stringify({ email, index, pass, smtp, toDB })
+        body: JSON.stringify({ email, index, pass, valid_until, smtp, toDB })
       });
       const data = await res.json();
       
@@ -214,6 +221,7 @@ class App extends React.Component {
           <th scope="row">{index+1}</th>
           <td>{email.email}</td>
           <td>{email.pass}</td>
+          <td>{email.valid_until}</td>
           <td>{email.status}</td>
           <td>{email.msg}</td>
           <td>
@@ -259,7 +267,7 @@ class App extends React.Component {
           <b>Sent today</b> <br/>
           {this.state.amountPerDay}
         </div>
-        <div className="container">
+        <div className="container-fluid">
           <div className="row">
             <div className="col-md-12">
               <h3>Bulk Sending emails</h3>
@@ -277,7 +285,7 @@ class App extends React.Component {
                   ?<React.Fragment></React.Fragment>
                   :<React.Fragment>
                     <button type="button" className="btn btn-info btn-sm" onClick={this.handleClickParse}><i className="fas fa-hat-wizard"></i> Emails only</button>
-                    <button type="button" className="btn btn-info btn-sm" onClick={this.handleClickEmPass}><i className="fas fa-hat-wizard"></i> Emails & Pass</button>
+                    <button type="button" className="btn btn-info btn-sm" onClick={this.handleClickEmPass}><i className="fas fa-hat-wizard"></i> Emails & Pass & Valid until</button>
                     <button type="button" className="btn btn-sm btn-light" onClick={this.handleClickClear}><i className="fas fa-broom"></i> Clear All</button>
                   </React.Fragment>
                 }
@@ -298,8 +306,9 @@ class App extends React.Component {
                 <thead>
                   <tr>
                     <th scope="col" className={styles.firstCol}>#</th>
-                    <th scope="col" className={styles.secondCol}>To Email</th>
+                    <th scope="col" className={styles.secondCol}>Email</th>
                     <th scope="col">Password</th>
+                    <th scope="col">Valid until</th>
                     <th scope="col">Status</th>
                     <th scope="col">Message</th>
                     <th scope="col" className={styles.lastCol}>Action</th>

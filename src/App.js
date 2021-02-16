@@ -44,6 +44,10 @@ class App extends React.Component {
     let txt_n = txt.split('\n');
     txt_n.forEach(el1 => {
       let valid_until = this.extractDates(el1);
+      // console.log(valid_until);
+      if(typeof valid_until === 'undefined' || valid_until === null){
+        return;
+      }
       let txt_space = el1.split(' ');
       txt_space.forEach(el2 => {
         if(this.checkIfEmailInString(el2)){
@@ -58,6 +62,7 @@ class App extends React.Component {
           });
         }
       });
+      // return true;
     });
     return rez;
   }
